@@ -1,0 +1,17 @@
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        root /app;
+        try_files $uri /index.html;
+    }
+
+    location /api/questions/ {
+        proxy_pass ${QUESTION_SERVICE_URL};
+    }
+
+    location /api/users/ {
+        proxy_pass ${USER_SERVICE_URL};
+    }
+}
