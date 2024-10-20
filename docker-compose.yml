@@ -1,0 +1,44 @@
+services:
+  question:
+    build: ./backend/question-service
+    ports:
+      - "3002:3002"
+
+  user:
+    build: ./backend/user-service
+    ports:
+      - "3001:3001"
+
+  rabbitmq:
+    image: dedsecrattle/rabbitmq-delayed-exchange
+    ports:
+      - "5672:5672" # RabbitMQ message broker
+      - "15672:15672" # RabbitMQ management plugin
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  matching:
+    build: ./backend/matching-service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3003:3003"
+    environment:
+      DATABASE_URL: "file:./dev.db"
+      RABBITMQ_URL: "amqp://rabbitmq:5672"
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - ./frontend/nginx/.env
+    ports:
+      - "80:80"
+    depends_on:
+      - user
+      - matching
+      - question
+      - rabbitmq

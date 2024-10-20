@@ -1,0 +1,36 @@
+.RecentSessions {
+  border-radius: 10.404px;
+  border: 0.867px solid #262626;
+  background: var(--Grey-10, #1a1a1a);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 20px;
+  gap: 10px;
+
+  &-sessions {
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5px 10px;
+
+    &-text {
+      font-size: 0.8rem !important;
+      font-weight: 200 !important;
+      color: var(--Grey-Shades-70, var(--Text-Disabled-On-Disabled, #b3b3b3)) !important;
+    }
+  }
+
+  &-new {
+    padding-block: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &-button {
+      width: 80%;
+      background: #22251b !important;
+      color: var(--Green-65, #d1ff4d) !important;
+    }
+  }
+}

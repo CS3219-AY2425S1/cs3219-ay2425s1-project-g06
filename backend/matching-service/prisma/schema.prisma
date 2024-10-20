@@ -1,0 +1,22 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("PRISMA_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model MatchRecord {
+  recordId     Int   @id @default(autoincrement())
+  userId       String   // ID of the user waiting for a match
+  topic        String   // Preferred topic for the match
+  difficulty   String   // Preferred difficulty level for the match
+  socketId     String   // Socket Id for communication
+  matched      Boolean  @default(false) // Whether a match has been made
+  matchedUserId String? // Optional field to store matched user's ID
+  isPending    Boolean @default(false) // Whether a match is currently pending confirmation
+  isConfirmed  Boolean @default(false) // Whether a match is confirmed by the user
+  isArchived   Boolean @default(false) // Whether a match record has been archived
+  createdAt    DateTime @default(now()) // Timestamp for the match attempt
+}
