@@ -120,7 +120,7 @@ async def cursor_updated(sid, data):
             Events.CURSOR_UPDATED,
             {'sid': sid, 'cursor_position': cursor_position},
             room=user.room.id,
-            skip_sid=sid
+            inlcude_self=False
         )
         logging.debug(f"Emitted CURSOR_UPDATED to room {user.room.id}")
     except Exception as e:

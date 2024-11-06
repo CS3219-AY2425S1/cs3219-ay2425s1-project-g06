@@ -292,8 +292,9 @@ const CodeEditor: React.FC = () => {
 
     // Handle cursor updates
     socket.on("cursor_updated", (userDetails: any) => {
+      console.log("Received cursor update:", userDetails);
       const { sid, cursor_position } = userDetails;
-      if (sid === socket.id) return; // Ignore own cursor
+      if (sid === socket.id) return;
 
       if (typeof cursor_position !== "number") {
         console.error(`Invalid cursor_position for sid ${sid}:`, cursor_position);
