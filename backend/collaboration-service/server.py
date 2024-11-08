@@ -2,8 +2,12 @@ import socketio
 import logging
 import os
 import dotenv
+import requests
 
 dotenv.load_dotenv()
+MATCHING_SERVICE_URL = os.environ.get('MATCHING_SERVICE_URL')
+if not MATCHING_SERVICE_URL:
+    raise ValueError('MATCHING_SERVICE_URL environment variable not set')
 
 from events import Events
 from models import Room, User
@@ -26,9 +30,11 @@ async def connect(sid, environ):
             logging.debug(f"connect {token=}")
             break
     if token:
-        username = authenticate(token)
-        if username:
-            User(username, sid)
+        user = authenticate(token)
+        user_id = user.get('id', None)
+        username = user.get('username', None)
+        if user_id and username:
+            User(user_id, username, sid)
             logging.info(f"User {username} authenticated and connected with sid {sid}")
         else:
             unauthenticated_sids.add(sid)
@@ -62,8 +68,13 @@ async def join_request(sid, data):
         logging.error(f"After join_request, user.room is None for sid {sid}")
     else:
         logging.debug(f"User {sid} joined room {room.id}")
+
+    data = {
+        "user_id": user.user_id,
+        "room_details": room.details()
+    }
     
-    await sio.emit(Events.JOIN_REQUEST, room.details(), room=room_id)
+    await sio.emit(Events.JOIN_REQUEST, data, room=room_id)
 
 
 @sio.on(Events.CODE_UPDATED)
@@ -167,7 +178,7 @@ async def disconnect(sid):
     if room is None:
         logging.error(f"User {sid} has no room during disconnect")
         return
-    
+
     room_still_exists = room.remove_user(user)
     
     if room_still_exists:
@@ -176,3 +187,9 @@ async def disconnect(sid):
             logging.debug(f"Emitted USER_LEFT to room {room.id}")
         except Exception as e:
             logging.error(f"Failed to emit USER_LEFT for room {room.id}: {e}")
+    
+    response = requests.put(f"{MATCHING_SERVICE_URL}/leave-session", json={"data": {"roomId": room.id, "userId": user.user_id} })
+    if response.status_code != 200:
+        logging.error(f"Error communicating with matching service: {response.content}")
+    else:
+        logging.info(f"Requested matching service to mark user {user.user_id} as having left room {room.id}")

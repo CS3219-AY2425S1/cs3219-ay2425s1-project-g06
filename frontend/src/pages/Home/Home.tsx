@@ -1,7 +1,7 @@
 import { ReactElement } from "react";
 import "./Home.scss";
 import Navbar from "../../components/Navbar/Navbar";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import CodeEditorImage from "../../assets/code_editor.svg";
 import Footer from "../../components/Footer/Footer";
 import RecentSessions from "../../components/RecentSessions/RecentSessions";

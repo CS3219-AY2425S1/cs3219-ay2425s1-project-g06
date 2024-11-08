@@ -3,7 +3,8 @@ import logging
 class User:
     users: dict[str, "User"] = {}
 
-    def __init__(self, username: str, sid: str):
+    def __init__(self, user_id, username: str, sid: str):
+        self.user_id = user_id
         self.username = username
         self.cursor_position = 0
         self.sid = sid

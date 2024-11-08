@@ -22,3 +22,17 @@ model MatchRecord {
   roomNumber    String // Matched room number
   questionId    Int? // Question ID for the match
 }
+
+model SessionHistory {
+  sessionId       Int      @id @default(autoincrement())
+  roomNumber      String
+  questionId      Int
+  submission      String?
+  language        String?
+  isOngoing       Boolean  @default(true)
+  userOneId       String
+  userTwoId       String
+  isUserOneActive Boolean  @default(true)
+  isUserTwoActive Boolean  @default(true)
+  createdAt     DateTime @default(now()) // Timestamp for the start of session
+}

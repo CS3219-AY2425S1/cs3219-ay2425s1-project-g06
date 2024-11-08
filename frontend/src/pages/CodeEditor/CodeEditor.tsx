@@ -6,8 +6,6 @@ import { okaidia } from "@uiw/codemirror-theme-okaidia";
 import { python } from "@codemirror/lang-python";
 import { cpp } from "@codemirror/lang-cpp";
 import { java } from "@codemirror/lang-java";
-import Navbar from "../../components/Navbar/Navbar";
-import Footer from "../../components/Footer/Footer";
 import Chatbox from "../../components/Chatbox/Chatbox";
 import VideoCall from "../../components/VideoCall/VideoCall";
 import HintBox from "../../components/HintBox/HintBox";
@@ -29,13 +27,13 @@ import { useConfirmationDialog } from "../../contexts/ConfirmationDialogContext"
 import Peer, { MediaConnection } from "peerjs";
 import TestCases from "../../components/TestCases/TestCases";
 import { Circle } from "@mui/icons-material";
+import SessionService, { Language } from "../../services/session.service";
+import { AxiosError } from "axios";
+import { useMainDialog } from "../../contexts/MainDialogContext";
 
 const COMMUNICATION_WEBSOCKET_URL = process.env.REACT_APP_COMMUNICATION_SERVICE_URL as string;
 const COLLABORATION_WEBSOCKET_URL = process.env.REACT_APP_COLLABORATION_SERVICE_URL as string;
 const VIDEO_PEER_SERVICE_PORT = process.env.REACT_APP_VIDEO_SERVICE_PORT;
-
-// Define Language Type
-type Language = "python" | "cpp" | "java";
 
 // Define the CursorWidget
 class CursorWidget extends WidgetType {
@@ -114,17 +112,28 @@ const CodeEditor: React.FC = () => {
   const { sessionState, questionId, clearSession, otherUserId, otherUserProfile } = useContext(SessionContext);
   const { setConfirmationDialogTitle, setConfirmationDialogContent, setConfirmationCallBack, openConfirmationDialog } =
     useConfirmationDialog();
+  const { setMainDialogTitle, setMainDialogContent, openMainDialog } = useMainDialog();
   const navigate = useNavigate();
 
   const [questionData, setQuestionData] = useState<QuestionData | null>(null);
 
+  // Use state + ref combination to handle real-time state change + socket events
   const [code, setCode] = useState<string>("# Write your solution here\n");
   const [language, setLanguage] = useState<Language>("python");
+  const codeRef = useRef<string>(code);
+  const languageRef = useRef<Language>(language);
+
+  useEffect(() => {
+    codeRef.current = code;
+  }, [code]);
+
+  useEffect(() => {
+    languageRef.current = language;
+  }, [language]);
 
   const { roomNumber } = useParams();
   const [joinedRoom, setJoinedRoom] = useState(false); // New state
   const [isHintBoxExpanded, setIsHintBoxExpanded] = useState(false); // New state
-  const [isVideoHovered, setIsVideoHovered] = useState(false);
   const [isChatboxExpanded, setIsChatboxExpanded] = useState(false);
   const [isVideoCallExpanded, setIsVideoCallExpanded] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
@@ -183,12 +192,6 @@ const CodeEditor: React.FC = () => {
   };
 
   useEffect(() => {
-    if (sessionState !== SessionState.SUCCESS) {
-      navigate("/");
-      clearSession();
-      return;
-    }
-
     const fetchQuestionData = async () => {
       try {
         const response = await QuestionService.getQuestion(questionId);
@@ -207,8 +210,13 @@ const CodeEditor: React.FC = () => {
       }
     };
 
-    fetchQuestionData();
-  }, [questionId, sessionState, navigate, clearSession]);
+    if (sessionState !== SessionState.SUCCESS) {
+      navigate("/");
+      clearSession();
+    } else {
+      fetchQuestionData();
+    }
+  }, [questionId, sessionState]);
 
   const appendToChatHistory = (newMessage: ChatMessage) => {
     setChatHistory([...chatHistoryRef.current, newMessage]);
@@ -237,6 +245,7 @@ const CodeEditor: React.FC = () => {
     setConfirmationDialogTitle("Leave Session");
     setConfirmationDialogContent("Are you sure you want to leave the session?");
     setConfirmationCallBack(() => () => {
+      SessionService.leaveSession(user?.id as string, roomNumber!);
       clearSocketsAndPeer();
       clearSession();
       navigate("/");
@@ -260,10 +269,16 @@ const CodeEditor: React.FC = () => {
 
     socket.on("join_request", (data: any) => {
       console.log("Received join_request data:", data);
-      if (data.code) {
-        setCode(data.code);
+      if (data?.user_id && data.user_id === user?.id) {
+        // Current user successfully joined a room
+        setJoinedRoom(true);
+      } else {
+        // emit current code and cursor for any new user joining the room
+        console.log("emitting");
+        socket.emit("language_change", { language: languageRef.current, room_id: roomNumber });
+        socket.emit("code_updated", { code: codeRef.current });
+        socket.emit("cursor_updated", { cursor_position: lastCursorPosition.current });
       }
-      setJoinedRoom(true); // User has successfully joined a room
     });
 
     socket.on("language_change", (newLanguage: string) => {
@@ -332,6 +347,7 @@ const CodeEditor: React.FC = () => {
           "Your partner has left the coding session. Would you like to end the session and return to home page?",
         );
         setConfirmationCallBack(() => () => {
+          SessionService.leaveSession(user?.id as string, roomNumber!);
           clearSocketsAndPeer();
           clearSession();
           navigate("/");
@@ -577,10 +593,6 @@ const CodeEditor: React.FC = () => {
     }
   };
 
-  const handleHangUp = () => {
-    setIsVideoCallExpanded(false);
-  };
-
   const cursorDecorationsExtension = useMemo(() => {
     return createCursorDecorations(otherCursors);
   }, [otherCursors]);
@@ -645,8 +657,8 @@ const CodeEditor: React.FC = () => {
 
     // Prepare payload for the API
     const payload = {
-      lang: language,
-      code: code,
+      lang: languageRef.current,
+      code: codeRef.current,
       customTests: submittedTestCases.map((tc) => ({
         input: tc.input,
         output: tc.expectedOutput || null,
@@ -692,10 +704,32 @@ const CodeEditor: React.FC = () => {
     }
   };
 
+  const submitAndEndSession = async () => {
+    try {
+      setConfirmationDialogTitle("Submit and end session");
+      setConfirmationDialogContent(
+        "You are about to submit your code and end the session for both you and your partner. Are you sure?",
+      );
+      setConfirmationCallBack(() => async () => {
+        await SessionService.submitSession(user?.id as string, roomNumber!, codeRef.current, languageRef.current);
+        clearSocketsAndPeer();
+        clearSession();
+        navigate("/");
+      });
+      openConfirmationDialog();
+    } catch (error) {
+      setMainDialogTitle("Error");
+      setMainDialogContent(
+        error instanceof AxiosError && error.response?.data.message
+          ? error.response?.data.message
+          : "An error occurred while submitting the code.",
+      );
+      openMainDialog();
+    }
+  };
+
   return (
     <div className="app-container">
-      <Navbar />
-
       <div className="container">
         <div className="top-section">
           <Typography variant="h3" className="question-title">
@@ -727,15 +761,20 @@ const CodeEditor: React.FC = () => {
                 <option value="cpp">C++</option>
                 <option value="java">Java</option>
               </select>
-              <Button
-                variant="contained"
-                size="small"
-                className={"submit-button" + (isExecuting ? " disabled" : "")}
-                onClick={executeCode}
-                disabled={isExecuting}
-              >
-                Run Code
-              </Button>
+              <div>
+                <Button
+                  variant="contained"
+                  size="small"
+                  className={"submit-button" + (isExecuting ? " disabled" : "")}
+                  onClick={executeCode}
+                  disabled={isExecuting}
+                >
+                  Run Code
+                </Button>
+                <Button variant="contained" size="small" onClick={submitAndEndSession} disabled={isExecuting}>
+                  Submit
+                </Button>
+              </div>
             </div>
             <CodeMirror
               value={code}
@@ -840,8 +879,6 @@ const CodeEditor: React.FC = () => {
       {isHintBoxExpanded && questionData && (
         <HintBox questionId={questionId} onClose={() => setIsHintBoxExpanded(false)} />
       )}
-
-      <Footer />
     </div>
   );
 };

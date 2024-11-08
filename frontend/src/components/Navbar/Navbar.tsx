@@ -22,6 +22,10 @@ const Navbar = (): ReactElement => {
     navigate("/interview", { replace: true });
   };
 
+  const redirectToHistory = () => {
+    navigate("/history", { replace: true });
+  };
+
   const redirectToSignUp = () => {
     navigate("/signup", { replace: true });
   };
@@ -50,6 +54,13 @@ const Navbar = (): ReactElement => {
         {user ? (
           <Button onClick={redirectToInterview}>
             <Typography>Interview</Typography>
+          </Button>
+        ) : (
+          <></>
+        )}
+        {user ? (
+          <Button onClick={redirectToHistory}>
+            <Typography>History</Typography>
           </Button>
         ) : (
           <></>

@@ -9,4 +9,4 @@ def authenticate(authorization_header) -> str | None:
     response = requests.get(f"{USER_SERVICE_URL}/auth/verify-token", headers={'authorization': authorization_header}) 
     if response.status_code != 200:
         return None
-    return response.json()["data"]['username']
+    return response.json()["data"]

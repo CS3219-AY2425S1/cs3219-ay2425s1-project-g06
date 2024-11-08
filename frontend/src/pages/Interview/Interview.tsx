@@ -11,6 +11,9 @@ import { Categories, QuestionComplexity } from "../../models/question.model";
 import { io } from "socket.io-client";
 import { SessionContext, SessionState } from "../../contexts/SessionContext";
 import { useMainDialog } from "../../contexts/MainDialogContext";
+import SessionService from "../../services/session.service";
+import { AxiosError } from "axios";
+import Spinner from "../../components/Spinner/Spinner";
 
 const WEBSOCKET_URL = process.env.REACT_APP_MATCHING_SERVICE_URL as string;
 
@@ -38,6 +41,7 @@ const Interview = (): ReactElement => {
     setQuestionId,
   } = useContext(SessionContext);
   const { setMainDialogTitle, setMainDialogContent, openMainDialog } = useMainDialog();
+  const [loading, setLoading] = useState(true);
 
   const socket = io(WEBSOCKET_URL, { autoConnect: false });
 
@@ -134,6 +138,44 @@ const Interview = (): ReactElement => {
     openMainDialog();
   });
 
+  const resumeSession = async (roomNumber: string) => {
+    try {
+      const rejoinResponse = await SessionService.rejoinSession(user!.id as string, roomNumber);
+      setSessionState(SessionState.SUCCESS);
+      setQuestionId(rejoinResponse.questionId);
+      setRoomNumber(rejoinResponse.roomNumber);
+      navigate(`/code-editor/${rejoinResponse.roomNumber}`);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 404) {
+          setMainDialogTitle("Too late");
+          setMainDialogContent("The previous interview session has ended. Join another one instead!");
+          openMainDialog();
+          return;
+        }
+      }
+      console.log(error);
+      setMainDialogTitle("Error");
+      setMainDialogContent("An error occurred while trying to resume the session.");
+      openMainDialog();
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      const fetchLatestSession = async () => {
+        const response = await SessionService.getLatestSession(user.id as string);
+        if (response && response.isOngoing) {
+          resumeSession(response.roomNumber);
+        } else {
+          setLoading(false);
+        }
+      };
+
+      fetchLatestSession();
+    }
+  }, [user]);
+
   useEffect(() => {
     if (sessionState === SessionState.SUCCESS && roomNumber) {
       console.log("Navigating to roomNumber: ", roomNumber);
@@ -157,6 +199,9 @@ const Interview = (): ReactElement => {
   };
 
   const getSessionComponent = (): ReactElement => {
+    if (loading) {
+      return <Spinner />;
+    }
     switch (sessionState) {
       case SessionState.NOT_STARTED:
         return <MatchingForm startMatchingCallBack={startMatching} />;
