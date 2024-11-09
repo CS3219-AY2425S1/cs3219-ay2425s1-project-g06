@@ -35,7 +35,6 @@ const COMMUNICATION_WEBSOCKET_URL = process.env.REACT_APP_COMMUNICATION_SERVICE_
 const COLLABORATION_WEBSOCKET_URL = process.env.REACT_APP_COLLABORATION_SERVICE_URL as string;
 const VIDEO_PEER_SERVICE_PORT = process.env.REACT_APP_VIDEO_SERVICE_PORT;
 
-// Define the CursorWidget
 class CursorWidget extends WidgetType {
   color: string;
 
@@ -67,7 +66,6 @@ const createCursorDecorations = (otherCursors: {
     for (const [sid, cursor] of Object.entries(otherCursors)) {
       const { cursor_position, color } = cursor;
       if (typeof cursor_position === "number") {
-        // Ensure cursor_position is a number
         const decoration = Decoration.widget({
           widget: new CursorWidget(color),
           side: 0,
