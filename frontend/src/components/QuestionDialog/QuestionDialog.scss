@@ -1,0 +1,56 @@
+.QuestionDialog {
+  &-title {
+    word-wrap: break-word;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &-line {
+    display: flex;
+    gap: 10px;
+  }
+
+  &-input {
+    background: #909090;
+    border-radius: 10px;
+
+    &-text {
+      color: white !important;
+    }
+
+    &-label {
+      color: white !important;
+    }
+
+    &-id {
+      flex: 1;
+    }
+
+    &-title {
+      flex: 4;
+    }
+
+    &-complexity {
+      flex: 1;
+    }
+
+    &-categories {
+      flex: 4;
+    }
+  }
+
+  &-error {
+    margin-top: 10px;
+    border-radius: 10px;
+
+    &-text {
+      color: white !important;
+    }
+  }
+}

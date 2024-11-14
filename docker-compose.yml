@@ -1,0 +1,159 @@
+services:
+  question:
+    image: echomo/cs3219-question:test1
+    ports:
+      - "3002:3002"
+    restart: always
+    environment:
+      - DB_CLOUD_URI=<> # add your own DB_CLOUD_URI
+      - PORT=3002
+      - ENV=PROD
+      - CODE_EXECUTION_SERVICE_URL=http://code-execution-server:7002
+
+  user:
+    image: echomo/cs3219-user:test0
+    ports:
+      - "3001:3001"
+    restart: always
+    environment:
+      - DB_CLOUD_URI=<> # add your own DB_CLOUD_URI
+      - PORT=3001
+      - ENV=PROD
+      - JWT_SECRET=secret
+
+  code-execution-rabbitmq:
+    image: rabbitmq:4.0-management
+    ports:
+      - "7004:5672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  code-execution-redis:
+    image: redis:alpine
+    ports:
+      - "7001:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  code-execution-server:
+    image: echomo/cs3219-code-exec-server:test0
+    ports:
+      - "7002:7002"
+    restart: always
+    depends_on:
+      code-execution-rabbitmq:
+        condition: service_healthy
+      code-execution-redis:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_HOST=code-execution-rabbitmq
+      - REDIS_HOST=code-execution-redis
+      - REDIS_PORT=6379
+      - USER_SERVICE_URL=http://user:3001
+
+  code-execution-worker:
+    image: echomo/cs3219-code-exec-worker:test0
+    pids_limit: 60
+    cpus: 1
+    mem_limit: 150M
+    restart: on-failure
+    depends_on:
+      code-execution-rabbitmq:
+        condition: service_healthy
+      code-execution-redis:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_HOST=code-execution-rabbitmq
+      - REDIS_HOST=code-execution-redis
+      - REDIS_PORT=6379
+      - COMPILE_SHELL=False
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 3s
+        window: 5s
+
+  rabbitmq:
+    image: dedsecrattle/rabbitmq-delayed-exchange
+    restart: always
+    ports:
+      - "5672:5672" # RabbitMQ message broker
+      - "15672:15672" # RabbitMQ management plugin
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  communication:
+    image: echomo/cs3219-communication:test0
+    ports:
+      - "3004:3004"
+      - "9000:9000"
+    restart: always
+    environment:
+      - PORT=3004
+      - PEERJS_PORT=9000
+
+  matching:
+    image: echomo/cs3219-matching:test1
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      - QUESTION_SERVICE=http://question:3002
+      - PORT=3003
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+
+  collaboration:
+    image: echomo/cs3219-collaboration:test1
+    ports:
+      - "3005:3005"
+    restart: always
+    environment:
+      - LOG_LEVEL=20
+      - USER_SERVICE_URL=http://user:3001
+      - MATCHING_SERVICE_URL=http://matching:3003
+
+  ai-hint-service:
+    image: echomo/cs3219-ai-hint:test0
+    ports:
+      - "3006:8000"
+    depends_on:
+      - question
+    environment:
+      - OPENAI_API_KEY=sk-proj-<> # Add your own OpenAI API key
+      - QUESTION_SERVICE_URL=http://question:3002
+
+  frontend:
+    image: echomo/cs3219-frontend:test5
+    environment:
+      - REACT_APP_USER_SERVICE_URL=http://localhost:3001/
+      - REACT_APP_QUESTION_SERVICE_URL=http://localhost:3002/
+      - REACT_APP_MATCHING_SERVICE_URL=http://localhost:3003
+      - REACT_APP_COMMUNICATION_SERVICE_URL=http://localhost:3004
+      - REACT_APP_COLLABORATION_SERVICE_URL=http://localhost:3005
+      - REACT_APP_AI_HINT_URL=http://localhost:3006
+      - REACT_APP_VIDEO_SERVICE_PORT=9000
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - user
+      - matching
+      - question
+      - collaboration
+      - rabbitmq
+      - ai-hint-service

@@ -1,0 +1,146 @@
+.app-container {
+  background: var(--Grey-10, #1a1a1a);
+  min-height: 100vh;
+  padding: 40px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background: var(--Grey-10, #1a1a1a);
+}
+
+.top-section {
+  margin-bottom: 20px;
+
+  .question-title {
+    margin-bottom: 10px;
+    color: #e4e4e4;
+    display: flex;
+    align-items: center;
+  }
+
+  .details {
+    display: flex;
+    gap: 10px;
+
+    .light-grey-chip {
+      background-color: #373737;
+      color: #ffffff;
+      border-radius: 6px;
+    }
+  }
+}
+
+.editors {
+  display: flex;
+
+  .left-side {
+    flex: 0.4;
+    padding: 10px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+
+    .md-editor {
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      border: 1px solid #3c3c3c;
+      padding: 20px;
+      color: #fff;
+      height: 500px;
+      overflow: auto;
+    }
+  }
+
+  .right-side {
+    flex: 0.6;
+    padding: 10px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+
+      .light-grey-chip {
+        background-color: #373737;
+        color: #ffffff;
+        border-radius: 6px;
+      }
+    }
+
+    .code-editor {
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      border: 1px solid #3c3c3c;
+      color: #fff;
+      overflow: hidden;
+    }
+  }
+}
+
+.buttons {
+  margin: 10px;
+}
+
+.chatbox-icon {
+  z-index: 100;
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  cursor: pointer;
+  width: 60px;
+  height: 60px;
+  background-color: #2e2e2e;
+  border-radius: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+
+  &-alert {
+    z-index: 101;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    transform: scale(0.7);
+  }
+
+  &:hover {
+    transform: scale(1.1);
+    background-color: #373737;
+  }
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 20px 40px;
+  }
+
+  .ai-hint-button {
+    padding: 8px 16px;
+    top: 5px;
+    left: 5px;
+  }
+
+  .ai-hint-button .MuiTypography-root {
+    font-size: 0.9rem;
+  }
+
+  .chatbox-icon,
+  .video-call-icon {
+    width: 50px;
+    height: 50px;
+  }
+}

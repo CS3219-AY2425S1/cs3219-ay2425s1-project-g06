@@ -1,0 +1,104 @@
+.MatchingResult {
+  &-title {
+    &-progress {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    &-text {
+      font-size: 1.5rem !important;
+      font-weight: 500 !important;
+      color: #caff33 !important;
+    }
+  }
+
+  &-users {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    padding-block: 30px;
+
+    &-profile {
+      width: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-overflow: ellipsis;
+      gap: 10px;
+    }
+
+    &-avatar {
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+    }
+
+    &-name {
+      width: 100%;
+      text-align: center;
+    }
+
+    &-bridge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+
+      &-text {
+        color: white !important;
+      }
+
+      &-infobox {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 5px 20px;
+        gap: 10px;
+        border-radius: 82px;
+        border: 1px solid var(--Green-60, #caff33);
+
+        &-icon {
+          color: white;
+        }
+      }
+
+      &-image-container {
+        max-width: 50vw;
+        display: flex;
+        flex-direction: row;
+      }
+
+      &-image {
+        &-left {
+          max-width: 50%;
+          filter: invert(41%) sepia(6%) saturate(111%) hue-rotate(201deg) brightness(94%) contrast(90%);
+        }
+
+        &-right {
+          max-width: 50%;
+          rotate: 180deg;
+          filter: invert(41%) sepia(6%) saturate(111%) hue-rotate(201deg) brightness(94%) contrast(90%);
+        }
+
+        &-accepted {
+          filter: invert(83%) sepia(57%) saturate(539%) hue-rotate(21deg) brightness(102%) contrast(108%);
+        }
+
+        &-declined {
+          filter: invert(17%) sepia(76%) saturate(3348%) hue-rotate(348deg) brightness(100%) contrast(88%);
+        }
+      }
+    }
+  }
+
+  &-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding-top: 20px;
+    gap: 40px;
+  }
+}

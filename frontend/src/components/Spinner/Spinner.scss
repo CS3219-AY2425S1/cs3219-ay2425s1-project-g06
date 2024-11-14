@@ -1,0 +1,10 @@
+.Spinner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  width: 100%;
+  background: var(--Grey-11, #1c1c1c);
+}

@@ -1,0 +1,51 @@
+.Interview-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+  &-title {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    color: #d4ff50 !important;
+  }
+
+  &-description {
+    max-width: 50vw;
+  }
+
+  &-label {
+    font-size: 1.4rem !important;
+    color: #d4ff50 !important;
+  }
+
+  &-topic {
+    &-select {
+      background: var(--Grey-20, #333) !important;
+      border-radius: 50px !important;
+      padding-inline: 10px !important;
+      color: white !important;
+
+      &-icon {
+        padding-inline: 10px;
+        color: white !important;
+      }
+    }
+  }
+
+  &-difficulty {
+    &-select {
+      padding-left: 15px;
+      gap: 20px;
+
+      &-radio {
+        color: white !important;
+      }
+    }
+  }
+
+  &-button-submit {
+    margin-top: 10px !important;
+    width: 15vw;
+  }
+}

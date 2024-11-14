@@ -1,0 +1,140 @@
+.test-cases-box {
+  margin-top: 20px;
+  background-color: #2e2e2e;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #3c3c3c;
+  color: #fff;
+
+  .test-cases-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .test-cases-title {
+    margin-bottom: 0;
+  }
+
+  .test-cases-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .test-case {
+    position: relative;
+    background-color: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #3c3c3c;
+
+    .delete-test-case-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      color: #fff;
+    }
+
+    .test-case-header {
+      margin-bottom: 10px;
+
+      .test-case-number {
+        font-weight: bold;
+        color: #caff33;
+      }
+    }
+
+    .test-case-header-editable {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      align-items: center;
+
+      .test-case-edit {
+        color: #f1f1f1;
+      }
+    }
+
+    .test-case-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .test-case-field {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .field-label {
+          font-weight: bold;
+          width: 150px;
+        }
+
+        .field-value {
+          flex: 1;
+          color: #e4e4e4;
+          white-space: pre-wrap;
+
+          &.correct {
+            color: #28a745; // Green
+            font-weight: bold;
+          }
+
+          &.incorrect {
+            color: #dc3545; // Red
+            font-weight: bold;
+          }
+
+          &.not-executed {
+            color: #6c757d; // Grey
+            font-weight: bold;
+          }
+
+          &.error {
+            color: #dc3545; // Red
+          }
+        }
+      }
+
+      .test-case-textfield {
+        margin-bottom: 10px;
+
+        .MuiInputBase-root {
+          background-color: #2e2e2e;
+          color: #fff;
+        }
+        .MuiInputLabel-root {
+          color: #caff33;
+        }
+        .MuiOutlinedInput-notchedOutline {
+          border-color: #3c3c3c;
+        }
+      }
+
+      .submit-test-case-button {
+        background-color: #caff33;
+        color: #121212;
+        border-radius: 5px;
+        align-self: flex-start;
+        margin-top: 10px;
+      }
+    }
+  }
+
+  .correct {
+    color: #28a745; // Green
+    font-weight: bold;
+  }
+
+  .incorrect {
+    color: #dc3545; // Red
+    font-weight: bold;
+  }
+
+  .not-executed {
+    color: #6c757d; // Grey
+    font-weight: bold;
+  }
+}

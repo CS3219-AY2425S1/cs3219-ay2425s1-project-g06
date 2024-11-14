@@ -1,0 +1,157 @@
+.Login {
+  background: var(--Grey-10, #1a1a1a);
+  min-height: 100vh;
+  padding: 40px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+
+  &-container {
+    padding-block: 40px;
+    width: 100%;
+    max-width: 1000px;
+    background: var(--Grey-20, #252525);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &-header {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    gap: 10px;
+    padding-bottom: 40px;
+  }
+
+  &-title {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    color: #d4ff50 !important;
+  }
+
+  &-subtitle {
+    font-size: 1rem;
+    font-weight: 300;
+    color: #b5b5b5;
+  }
+
+  &-form {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    align-items: center;
+
+    .MuiTextField-root {
+      background-color: #333;
+      border-radius: 50px;
+      padding: 10px 15px;
+
+      .MuiOutlinedInput-notchedOutline {
+        border-color: #555;
+        border-radius: 50px;
+      }
+
+      .MuiInputLabel-root {
+        color: #999;
+      }
+    }
+
+    .SignUp-password {
+      position: relative;
+    }
+  }
+
+  &-password-eye-icon {
+    padding-right: 10px !important;
+    cursor: pointer;
+    color: #999 !important;
+  }
+
+  &-input {
+    color: white !important;
+  }
+
+  &-button {
+    align-self: flex-start;
+    grid-column: span 2;
+    background-color: #d4ff50;
+    color: black;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    text-transform: none;
+    margin-top: 20px;
+  }
+
+  &-signup {
+    grid-column: span 2;
+    color: #e4e4e7;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    text-align: center;
+
+    a {
+      color: #d4ff50;
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &-or {
+    grid-column: span 2;
+    color: #999;
+    font-size: 0.85rem;
+    margin: 20px 0;
+  }
+
+  &-social {
+    grid-column: span 2;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+
+    .SignUp-social-button {
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: #333;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #444;
+      }
+
+      img {
+        width: 30px;
+        height: 30px;
+      }
+    }
+  }
+
+  &-prompts {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+
+  &-forgot-password {
+    &-text {
+      text-decoration: underline;
+    }
+  }
+}
